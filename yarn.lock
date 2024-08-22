@@ -3471,6 +3471,7 @@ __metadata:
     "@types/cheerio": "npm:^0.22.31"
     "@types/debug": "npm:^4.1.5"
     "@types/fs-extra": "npm:^9.0.2"
+    "@types/glob-to-regexp": "npm:^0.4.4"
     "@types/jest": "npm:^28.0.0"
     "@types/klaw-sync": "npm:^6.0.0"
     "@types/lunr": "npm:^2.3.3"
@@ -3484,6 +3485,7 @@ __metadata:
     copyfiles: "npm:^2.4.0"
     debug: "npm:^4.2.0"
     fs-extra: "npm:^10.0.0"
+    glob-to-regexp: "npm:^0.4.1"
     gray-matter: "npm:^4.0.3"
     klaw-sync: "npm:^6.0.0"
     lunr: "npm:^2.3.9"
@@ -4692,6 +4694,13 @@ __metadata:
   dependencies:
     "@types/node": "npm:*"
   checksum: b8a6eaf535a556a6cbf837cbac43deac06928b456aa155783f144a225fb6951c1619a829fd11a577acf097888b6e713f85f295ef69d726fc129e1e45d349a75e
+  languageName: node
+  linkType: hard
+
+"@types/glob-to-regexp@npm:^0.4.4":
+  version: 0.4.4
+  resolution: "@types/glob-to-regexp@npm:0.4.4"
+  checksum: be9c924d664592a16129c825aa392365335ce455c34e1c9d3f6dd8b45371088bb5d4a45bbb576559f2b63d4f8bcf464cbd5baafb08cdf89b71d3b6a79356b747
   languageName: node
   linkType: hard
 

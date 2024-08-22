@@ -11,6 +11,13 @@ const isStringOrArrayOfStrings = Joi.alternatives().try(
   Joi.array().items(Joi.string())
 );
 
+const isArrayOfStringOrArrayOfArrayOfString = Joi.array().items(
+  Joi.alternatives().try(
+    Joi.string(),
+    Joi.array().items(Joi.string())
+  )
+);
+
 const isBooleanOrString = Joi.alternatives().try(Joi.boolean(), Joi.string());
 
 const isArrayOfStringsOrRegExpsOrStringOrRegExp = Joi.alternatives().try(
@@ -61,6 +68,7 @@ const schema = Joi.object<PluginOptions>({
   hideSearchBarWithNoSearchContext: Joi.boolean().default(false),
   useAllContextsWithNoSearchContext: Joi.boolean().default(false),
   forceIgnoreNoIndex: Joi.boolean().default(false),
+  privatePaths: isArrayOfStringOrArrayOfArrayOfString.default([]),
 });
 
 export function validateOptions({
