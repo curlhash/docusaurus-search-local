@@ -39,6 +39,14 @@ const BLOCK_TAGS = new Set([
   "th",
 ]);
 
+function truncateAfterDelimiter(text: string, delimiter: string) {
+  const index = text.indexOf(delimiter);
+  if (index !== -1) {
+      return text.substring(0, index).trim();
+  }
+  return text;
+}
+
 export function getCondensedText(
   element: cheerio.Element | cheerio.Element[],
   $: cheerio.Root
@@ -62,5 +70,5 @@ export function getCondensedText(
     }
     return "";
   };
-  return getText(element).trim().replace(/\s+/g, " ");
+  return truncateAfterDelimiter(getText(element).trim().replace(/\s+/g, " "), ":::");
 }

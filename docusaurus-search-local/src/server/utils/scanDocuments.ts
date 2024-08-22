@@ -202,6 +202,7 @@ export async function scanDocuments(
               u: url,
               h: trimmedHash,
               p: titleId,
+              q: section.query
             });
           }
 
@@ -217,6 +218,7 @@ export async function scanDocuments(
               u: url,
               h: trimmedHash,
               p: titleId,
+              q: section.query
             });
           }
         }
@@ -226,8 +228,8 @@ export async function scanDocuments(
       }
     })
   );
-  console.log('Total files', DocInfoWithFilePathList.length)
-  console.log('Successfully parsed files', successfullyParsedFilesCount)
+  // console.log('Total files', DocInfoWithFilePathList.length)
+  // console.log('Successfully parsed files', successfullyParsedFilesCount)
   return allDocuments;
 }
 

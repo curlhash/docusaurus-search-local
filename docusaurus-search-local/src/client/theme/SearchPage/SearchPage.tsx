@@ -276,11 +276,12 @@ function SearchResultItem({
     }
     search = `?${params.toString()}`;
   }
+
   return (
     <article className={styles.searchResultItem}>
       <h4>
         <Link
-          to={document.u + search + (document.h || "")}
+          to={document.u + search + (document.q || "" ) + (document.h || "")}
           dangerouslySetInnerHTML={{
             __html:
               isContent || isDescriptionOrKeywords

@@ -4,6 +4,7 @@ import { getCondensedText } from "./getCondensedText";
 
 const HEADINGS_ARR = ["h2", "h3"];
 const HEADINGS = "h1 h2, h3";
+const MAX_CONTENT_LEN = 100;
 // const SUB_HEADINGS = "h2, h3";
 
 const startsWithLetter = (str: string) => {
@@ -12,7 +13,7 @@ const startsWithLetter = (str: string) => {
 }
 
 const extractHashtag = (str: string) => {
-  const hashtagRegex = /#\w+/;
+  const hashtagRegex = /#\w+(-\w+)*/;
   const match = str.match(hashtagRegex);
   return match ? match[0] : '';
 }
@@ -102,11 +103,14 @@ export function parseDocument($: cheerio.Root, frontmatter: any): ParsedDocument
         $sectionElements = $h.nextUntil(HEADINGS);
       }
       const content = getCondensedText($sectionElements.get(), $);
+      // for highlighting the text
+      const query = `?highlight=${title.length > content.length ? title : content.substring(0, MAX_CONTENT_LEN)}`;
 
       sections.push({
         title,
         hash,
         content,
+        query
       });
     });
   })
