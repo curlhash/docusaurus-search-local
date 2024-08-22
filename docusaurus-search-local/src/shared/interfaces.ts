@@ -69,6 +69,10 @@ export interface SearchDocument {
 
   /** Doc section title */
   s?: string;
+
+  /** Doc section query */
+  q?: string;
+
 }
 
 export enum SearchDocumentType {
@@ -116,6 +120,7 @@ export interface ParsedDocumentSection {
   title: string;
   hash: string;
   content: string;
+  query?: string;
 }
 
 export interface DocInfoWithRoute {

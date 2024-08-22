@@ -29,19 +29,21 @@ import {
 import styles from "./SearchPage.module.css";
 import { normalizeContextByPath } from "../../utils/normalizeContextByPath";
 
-export default function SearchPage(): React.ReactElement {
+export default function SearchPage(props: { checkDocsAuthorization?: Function}): React.ReactElement {
   return (
     <Layout>
-      <SearchPageContent />
+      <SearchPageContent {...props}/>
     </Layout>
   );
 }
 
-function SearchPageContent(): React.ReactElement {
+function SearchPageContent(props: { checkDocsAuthorization?: Function}): React.ReactElement {
   const {
     siteConfig: { baseUrl },
     i18n: { currentLocale },
   } = useDocusaurusContext();
+
+  const { checkDocsAuthorization } = props;
 
   const { selectMessage } = usePluralForm();
   const {
@@ -119,7 +121,7 @@ function SearchPageContent(): React.ReactElement {
           ? await fetchIndexes(versionUrl, searchContext)
           : { wrappedIndexes: [], zhDictionary: [] };
       setSearchSource(() =>
-        SearchSourceFactory(wrappedIndexes, zhDictionary, 100)
+        SearchSourceFactory(wrappedIndexes, zhDictionary, 100, checkDocsAuthorization)
       );
     }
     doFetchIndexes();
@@ -274,11 +276,12 @@ function SearchResultItem({
     }
     search = `?${params.toString()}`;
   }
+
   return (
     <article className={styles.searchResultItem}>
-      <h2>
+      <h4>
         <Link
-          to={document.u + search + (document.h || "")}
+          to={document.u + search + (document.q || "" ) + (document.h || "")}
           dangerouslySetInnerHTML={{
             __html:
               isContent || isDescriptionOrKeywords
@@ -291,7 +294,7 @@ function SearchResultItem({
                   ),
           }}
         ></Link>
-      </h2>
+      </h4>
       {pathItems.length > 0 && (
         <p className={styles.searchResultItemPath}>
           {concatDocumentPath(pathItems)}
