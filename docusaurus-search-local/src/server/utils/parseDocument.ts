@@ -6,10 +6,29 @@ const HEADINGS_ARR = ["h2", "h3"];
 const HEADINGS = "h1 h2, h3";
 // const SUB_HEADINGS = "h2, h3";
 
+const startsWithLetter = (str: string) => {
+  const regex = /^[a-z]/i;
+  return regex.test(str);
+}
+
+const extractHashtag = (str: string) => {
+  const hashtagRegex = /#\w+/;
+  const match = str.match(hashtagRegex);
+  return match ? match[0] : '';
+}
+
 export function parseDocument($: cheerio.Root, frontmatter: any): ParsedDocument {
   const $pageTitle = $("h1").first();
   const pageTitle = frontmatter.title ?? $pageTitle.text();
-  const description = frontmatter.description ?? ($("p").first().text() || "");
+  let firstProbablePara = ''
+  $("p").each((index, element) => {
+    if (index === 0 || !startsWithLetter($(element).text()) || firstProbablePara) return
+    firstProbablePara = $(element).text()
+  })
+  if (!(firstProbablePara && firstProbablePara.length > frontmatter.description.length)) {
+    firstProbablePara = frontmatter.description
+  }
+  const description = firstProbablePara;
   const keywords = $("meta[name='keywords']").attr("content") || "";
 
   const sections: ParsedDocumentSection[] = [];
@@ -37,11 +56,13 @@ export function parseDocument($: cheerio.Root, frontmatter: any): ParsedDocument
       // Remove elements that are marked as aria-hidden.
       // This is mainly done to remove anchors like this:
       // <a aria-hidden="true" tabindex="-1" class="hash-link" href="#first-subheader" title="Direct link to heading">#</a>
-      const title = $h.text().trim();
+      let title = $h.text().trim();
       // replace all '`' with '' to avoid breaking the search index
       const sanitizedTitle = title.replace(/[,?\.!:;\/\\'"\[\]\{\}\(\)&@#$%^*|<>~`]/g, '');
-      const hash = `#${sanitizedTitle.toLocaleLowerCase().split(' ').join('-')}`;
-
+      let hash = extractHashtag(title)
+      if (!hash) {
+        hash = `#${sanitizedTitle.toLocaleLowerCase().split(' ').join('-')}`;
+      }
       // Find all content between h1 and h2/h3,
       // which is considered as the content section of page title.
       let $sectionElements = $([]);
