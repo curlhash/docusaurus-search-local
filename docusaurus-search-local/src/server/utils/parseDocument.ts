@@ -18,13 +18,13 @@ const extractHashtag = (str: string) => {
   return match ? match[0] : '';
 }
 
-export function parseDocument($: cheerio.Root, frontmatter: any): ParsedDocument {
+export function parseDocument($: cheerio.Root, frontmatter: any, isPrivateDoc: boolean): ParsedDocument {
   const $pageTitle = $("h1").first();
   const pageTitle = frontmatter.title ?? $pageTitle.text();
   let firstProbablePara = ''
   $("p").each((index, element) => {
     if (index === 0 || !startsWithLetter($(element).text()) || firstProbablePara) return
-    firstProbablePara = $(element).text()
+    firstProbablePara = isPrivateDoc ? $(element).text()?.slice(0, 200) : $(element).text()
   })
   if (!(firstProbablePara && firstProbablePara.length > frontmatter.description.length)) {
     firstProbablePara = frontmatter.description

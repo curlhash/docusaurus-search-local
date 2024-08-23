@@ -5,6 +5,7 @@ import { remark } from 'remark';
 import remarkHtml from 'remark-html';
 import * as cheerio from 'cheerio';
 import matter from 'gray-matter';
+import globToRegexp from 'glob-to-regexp'
 
 import {
   DocInfoWithFilePath,
@@ -20,6 +21,26 @@ let nextDocId = 0;
 const getNextDocId = () => {
   return (nextDocId += 1);
 };
+
+function validateGlobPath(
+  href: string,
+  globPaths: (string | string[])[],
+  isApplyAnd?: boolean
+): boolean {
+  const testRegex = isApplyAnd ? globPaths.every.bind(globPaths) : globPaths.some.bind(globPaths)
+  return testRegex((globPath: string | string[]) => {
+    if (Array.isArray(globPath)) {
+      return validateGlobPath(href, globPath, true)
+    }
+    const isNegation = globPath.indexOf('!') === 0
+    const regexPath = globToRegexp(globPath.replace('!', ''))
+    return isNegation ? !regexPath.test(href) : regexPath.test(href)
+  })
+}
+
+function isPathAllowed(path: string, privatePaths: (string | string[])[]) {
+  return !validateGlobPath(path, privatePaths)
+}
 
 function checkForIndexFile(dirPath: string): string | null {
   try {
@@ -111,6 +132,30 @@ function recursiveSearch(itemsInThePath: string[], pathStr: string): string | nu
   return null;
 }
 
+function extractKeywords(paragraph: string, minWordLength = 4, maxKeywords = 15) {
+  // Convert to lowercase and remove punctuation
+  const cleanText = paragraph.toLowerCase().replace(/[^\w\s]/g, '');
+
+  // Split into words
+  const words = cleanText.split(/\s+/);
+
+  // Count word frequencies
+  const wordFrequency: Record<string, number> = {};
+  words.forEach(word => {
+    if (word.length >= minWordLength) {
+      wordFrequency[word] = (wordFrequency[word] || 0) + 1;
+    }
+  });
+
+  // Sort words by frequency
+  const sortedWords = Object.keys(wordFrequency)
+    .map(word => [word, wordFrequency[word]])
+    .sort((a: any, b: any) => b[1] - a[1])
+    .slice(0, maxKeywords)
+    .map(entry => entry[0]);
+  return sortedWords;
+}
+
 export async function scanDocuments(
   DocInfoWithFilePathList: DocInfoWithFilePath[],
   config: ProcessedPluginOptions
@@ -130,6 +175,12 @@ export async function scanDocuments(
   const errorFiles: string[] = [];
   const unResolvedFiles: string[] = [];
   let successfullyParsedFilesCount: number = 0;
+  const fileStats = {
+    total: 0,
+    processed: 0,
+    processedPublic: 0,
+    processedPrivate: 0
+  }
   await Promise.all(
     DocInfoWithFilePathList.map(async ({ filePath, url, type }) => {
       debugVerbose(
@@ -150,14 +201,15 @@ export async function scanDocuments(
         const processedContent = await remark().use(remarkHtml).process(markdownContent);
 
         const htmlContent = processedContent.toString();
-
-        const parsed = parse(htmlContent, type, url, config, frontmatter);
+        const isPrivateDoc = !isPathAllowed(url, config.privatePaths)
+        const parsed = parse(htmlContent, type, url, config, frontmatter, isPrivateDoc);
+        fileStats.total += 1;
+        fileStats.processed += 1;
         if (!parsed) {
           // Unlisted content
           return;
         }
-        successfullyParsedFilesCount += 1;
-        const { pageTitle, description, keywords, sections, breadcrumb } = parsed;
+        const { pageTitle, description, sections, breadcrumb } = parsed;
 
         const titleId = getNextDocId();
 
@@ -177,16 +229,6 @@ export async function scanDocuments(
             u: url,
             p: titleId,
             q: pageTitle
-          });
-        }
-
-        if (keywords) {
-          keywordsDocuments.push({
-            i: titleId,
-            t: keywords,
-            s: pageTitle,
-            u: url,
-            p: titleId,
           });
         }
 
@@ -212,17 +254,35 @@ export async function scanDocuments(
             if (trimmedHash === false) {
               continue;
             }
-
-            contentDocuments.push({
-              i: getNextDocId(),
-              t: section.content,
-              s: section.title || pageTitle,
-              u: url,
-              h: trimmedHash,
-              p: titleId,
-              q: section.query
-            });
+            if (isPrivateDoc) {
+              keywordsDocuments.push({
+                i: getNextDocId(),
+                t: extractKeywords(section.content).join(' '),
+                s: pageTitle,
+                u: url,
+                h: trimmedHash,
+                p: titleId,
+                q: section.query
+              })
+            } else {
+              contentDocuments.push({
+                i: getNextDocId(),
+                t: section.content,
+                s: section.title || pageTitle,
+                u: url,
+                h: trimmedHash,
+                p: titleId,
+                q: section.query
+              });
+            }
           }
+        }
+
+        if (isPrivateDoc) {
+          fileStats.processedPrivate += 1;
+          // console.log(keywordsDocuments)
+        } else {
+          fileStats.processedPublic += 1;
         }
       } catch (e) {
         errorFiles.push(resolvedFilePath);
@@ -230,6 +290,12 @@ export async function scanDocuments(
       }
     })
   );
+  console.info('***** Search index stats *****')
+  console.log('Total files', fileStats.total)
+  console.log('Processed files', fileStats.processed)
+  console.log('Processed public files', fileStats.processedPublic)
+  console.log('Processed private files', fileStats.processedPrivate)
+  console.info('***** Search index stats *****')
   return allDocuments;
 }
 

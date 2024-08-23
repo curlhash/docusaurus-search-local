@@ -199,4 +199,9 @@ export interface PluginOptions {
    * @default false
    */
   forceIgnoreNoIndex?: boolean;
+
+  /**
+   * This is to add authentication support and reduce the content we use to create the index
+   */
+  privatePaths?: (string | string[])[];
 }
