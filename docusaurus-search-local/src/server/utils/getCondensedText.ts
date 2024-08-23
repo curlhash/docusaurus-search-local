@@ -39,10 +39,25 @@ const BLOCK_TAGS = new Set([
   "th",
 ]);
 
-function truncateAfterDelimiter(text: string, delimiter: string) {
-  const index = text.indexOf(delimiter);
-  if (index !== -1) {
-      return text.substring(0, index).trim();
+function removeTextBetweenDelimiters(text: string): string {
+  // Regex to match text between '::' including the '::' delimiters
+  const regex = /::.*?::/gs;
+  // Replace the matched text with an empty string
+  return text.replace(regex, '');
+}
+
+export function replaceWithCharacter(text: string, regex: RegExp, character: string): string {
+  // Replace all matches of the regex with the character
+  return text.replace(regex, character);
+}
+
+
+export function truncateAfterDelimiters(text: string,): string {
+  // Regex to match any of the delimiters: ':', '::', ':::', or '-'
+  const regex = /(:{1,3}|-|\$\$\$\$)/;
+  const match = text.match(regex);
+  if (match) {
+    return text.substring(0, match.index).trim();
   }
   return text;
 }
@@ -53,7 +68,7 @@ export function getCondensedText(
 ): string {
   const getText = (element: cheerio.Element | cheerio.Element[]): string => {
     if (Array.isArray(element)) {
-      return element.map((item) => getText(item)).join("");
+      return element.map((item) => getText(item)).join("$$$$");
     }
     if (element.type === "text") {
       return element.data as string;
@@ -70,5 +85,5 @@ export function getCondensedText(
     }
     return "";
   };
-  return truncateAfterDelimiter(getText(element).trim().replace(/\s+/g, " "), ":::");
+  return removeTextBetweenDelimiters(getText(element).trim().replace(/\s+/g, " "));
 }

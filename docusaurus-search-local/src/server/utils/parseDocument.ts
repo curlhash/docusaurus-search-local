@@ -1,6 +1,6 @@
 import { blogPostContainerID } from "@docusaurus/utils-common";
 import { ParsedDocument, ParsedDocumentSection } from "../../shared/interfaces";
-import { getCondensedText } from "./getCondensedText";
+import { getCondensedText, truncateAfterDelimiters ,replaceWithCharacter} from "./getCondensedText";
 
 const HEADINGS_ARR = ["h2", "h3"];
 const HEADINGS = "h1 h2, h3";
@@ -102,14 +102,20 @@ export function parseDocument($: cheerio.Root, frontmatter: any, isPrivateDoc: b
       } else {
         $sectionElements = $h.nextUntil(HEADINGS);
       }
-      const content = getCondensedText($sectionElements.get(), $);
+
+      let content = getCondensedText($sectionElements.get(), $);
+      let sanitizedContent = replaceWithCharacter(content, /\$\$\$\$/g, "");
+      // for private docs, we only need to index the first 200 characters
+      if (isPrivateDoc) {
+        sanitizedContent = sanitizedContent.slice(0, 200);
+      }
       // for highlighting the text
-      const query = `?highlight=${title.length > content.length ? title : content.substring(0, MAX_CONTENT_LEN)}`;
+      const query = `${title.length > content.length ? title : content.substring(0, MAX_CONTENT_LEN)}`;
 
       sections.push({
         title,
         hash,
-        content,
+        content: sanitizedContent,
         query
       });
     });
