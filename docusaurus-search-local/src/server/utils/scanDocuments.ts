@@ -218,6 +218,7 @@ export async function scanDocuments(
           t: pageTitle,
           u: url,
           b: breadcrumb,
+          q: pageTitle
         });
 
         if (description) {
@@ -227,6 +228,7 @@ export async function scanDocuments(
             s: pageTitle,
             u: url,
             p: titleId,
+            q: pageTitle
           });
         }
 
@@ -252,15 +254,27 @@ export async function scanDocuments(
             if (trimmedHash === false) {
               continue;
             }
-            contentDocuments.push({
-              i: getNextDocId(),
-              t: section.content,
-              s: section.title || pageTitle,
-              u: url,
-              h: trimmedHash,
-              p: titleId,
-              q: section.query
-            });
+            if (isPrivateDoc) {
+              keywordsDocuments.push({
+                i: getNextDocId(),
+                t: extractKeywords(section.content).join(' '),
+                s: pageTitle,
+                u: url,
+                h: trimmedHash,
+                p: titleId,
+                q: section.query
+              })
+            } else {
+              contentDocuments.push({
+                i: getNextDocId(),
+                t: section.content,
+                s: section.title || pageTitle,
+                u: url,
+                h: trimmedHash,
+                p: titleId,
+                q: section.query
+              });
+            }
           }
         }
 
