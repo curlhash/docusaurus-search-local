@@ -288,7 +288,7 @@ export default function SearchBar(props: SearchBarProps): ReactElement {
     )
       .on(
         "autocomplete:selected",
-        function (event: any, { document: { u, h }, tokens }: SearchResult) {
+        function (event: any, { document: { u, h, q }, tokens }: SearchResult) {
           searchBarRef.current?.blur();
 
           let url = u;
@@ -298,6 +298,9 @@ export default function SearchBar(props: SearchBarProps): ReactElement {
               params.append(SEARCH_PARAM_HIGHLIGHT, token);
             }
             url += `?${params.toString()}`;
+          }
+          if (q) {
+            url += `?highlight=${q}`
           }
           if (h) {
             url += h;
