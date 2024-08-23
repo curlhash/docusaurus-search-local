@@ -252,27 +252,15 @@ export async function scanDocuments(
             if (trimmedHash === false) {
               continue;
             }
-            if (isPrivateDoc) {
-              keywordsDocuments.push({
-                i: getNextDocId(),
-                t: extractKeywords(section.content).join(' '),
-                s: pageTitle,
-                u: url,
-                h: trimmedHash,
-                p: titleId,
-                q: section.query
-              })
-            } else {
-              contentDocuments.push({
-                i: getNextDocId(),
-                t: section.content,
-                s: section.title || pageTitle,
-                u: url,
-                h: trimmedHash,
-                p: titleId,
-                q: section.query
-              });
-            }
+            contentDocuments.push({
+              i: getNextDocId(),
+              t: section.content,
+              s: section.title || pageTitle,
+              u: url,
+              h: trimmedHash,
+              p: titleId,
+              q: section.query
+            });
           }
         }
 
