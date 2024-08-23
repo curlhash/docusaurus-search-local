@@ -27,7 +27,7 @@ export function SuggestionTemplate({
   isInterOfTree,
   isLastOfTree,
 }: Omit<SearchResult, "score" | "index">): string {
-  const isTitle = type === SearchDocumentType.Title;
+    const isTitle = type === SearchDocumentType.Title;
   const isKeywords = type === SearchDocumentType.Keywords;
   const isTitleRelated = isTitle || isKeywords;
   const isHeading = type === SearchDocumentType.Heading;
@@ -86,7 +86,7 @@ export function SuggestionTemplate({
   return [
     ...treeWrapper,
     icon,
-    `<span class="${styles.hitWrapper}">`,
+    `<span title="${document.t}" class="${styles.hitWrapper}">`,
     ...wrapped,
     "</span>",
     action,

@@ -38,6 +38,7 @@ export function SearchSourceFactory(
             .query((query) => {
               for (const item of term) {
                 query.term(item.value, {
+                  editDistance: 1,
                   wildcard: item.wildcard,
                   presence: item.presence,
                 });
