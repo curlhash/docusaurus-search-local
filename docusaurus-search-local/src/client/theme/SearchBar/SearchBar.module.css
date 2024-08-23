@@ -177,6 +177,7 @@ html[data-theme="dark"] .noResultsIcon {
 
 .suggestion.cursor,
 .suggestion.cursor mark,
+.suggestion.cursor span,
 .suggestion.cursor .hitTree,
 .suggestion.cursor .hitIcon,
 .suggestion.cursor .hitPath {
@@ -184,6 +185,12 @@ html[data-theme="dark"] .noResultsIcon {
     --search-local-hit-active-color,
     var(--ifm-color-white)
   ) !important;
+}
+
+.hitWrapper span.highlight-search {
+  font-weight: 900 !important;
+  color: var(--search-local-hit-highlight-color) !important;
+  text-decoration: underline !important;
 }
 
 .suggestion.cursor mark {
