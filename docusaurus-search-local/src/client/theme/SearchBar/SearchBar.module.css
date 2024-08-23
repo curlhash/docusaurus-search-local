@@ -155,6 +155,7 @@ html[data-theme="dark"] .noResultsIcon {
   align-items: center;
   justify-content: center;
   padding: var(--search-local-spacing, 12px) 0;
+  background: var(--ifm-navbar-search-input-background-color)
 }
 
 .noResultsIcon {
