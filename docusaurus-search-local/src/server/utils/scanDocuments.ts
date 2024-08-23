@@ -166,6 +166,7 @@ export async function scanDocuments(
           t: pageTitle,
           u: url,
           b: breadcrumb,
+          q: pageTitle
         });
 
         if (description) {
@@ -175,6 +176,7 @@ export async function scanDocuments(
             s: pageTitle,
             u: url,
             p: titleId,
+            q: pageTitle
           });
         }
 
@@ -228,8 +230,6 @@ export async function scanDocuments(
       }
     })
   );
-  // console.log('Total files', DocInfoWithFilePathList.length)
-  // console.log('Successfully parsed files', successfullyParsedFilesCount)
   return allDocuments;
 }
 

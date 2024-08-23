@@ -1,6 +1,6 @@
 import { blogPostContainerID } from "@docusaurus/utils-common";
 import { ParsedDocument, ParsedDocumentSection } from "../../shared/interfaces";
-import { getCondensedText } from "./getCondensedText";
+import { getCondensedText, truncateAfterDelimiters ,replaceWithCharacter} from "./getCondensedText";
 
 const HEADINGS_ARR = ["h2", "h3"];
 const HEADINGS = "h1 h2, h3";
@@ -102,14 +102,16 @@ export function parseDocument($: cheerio.Root, frontmatter: any): ParsedDocument
       } else {
         $sectionElements = $h.nextUntil(HEADINGS);
       }
-      const content = getCondensedText($sectionElements.get(), $);
-      // for highlighting the text
-      const query = `?highlight=${title.length > content.length ? title : content.substring(0, MAX_CONTENT_LEN)}`;
+
+      const content = getCondensedText($sectionElements.get(), $)
+      const sanitisedContent = replaceWithCharacter(getCondensedText($sectionElements.get(), $), /\$\$\$\$/g, "");
+     // for highlighting the text
+      const query = `${title.length > content.length ? title : content.substring(0, MAX_CONTENT_LEN)}`;
 
       sections.push({
         title,
         hash,
-        content,
+        content: sanitisedContent,
         query
       });
     });

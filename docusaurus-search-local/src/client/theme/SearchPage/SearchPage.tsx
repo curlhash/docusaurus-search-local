@@ -281,7 +281,7 @@ function SearchResultItem({
     <article className={styles.searchResultItem}>
       <h4>
         <Link
-          to={document.u + search + (document.q || "" ) + (document.h || "")}
+          to={document.u + search + (document.q ? `?highlight=${document.q}` : "" ) + (document.h || "")}
           dangerouslySetInnerHTML={{
             __html:
               isContent || isDescriptionOrKeywords
