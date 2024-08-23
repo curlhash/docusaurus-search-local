@@ -4,12 +4,32 @@ import { getCondensedText } from "./getCondensedText";
 
 const HEADINGS_ARR = ["h2", "h3"];
 const HEADINGS = "h1 h2, h3";
+const MAX_CONTENT_LEN = 100;
 // const SUB_HEADINGS = "h2, h3";
 
-export function parseDocument($: cheerio.Root, frontmatter: any): ParsedDocument {
+const startsWithLetter = (str: string) => {
+  const regex = /^[a-z]/i;
+  return regex.test(str);
+}
+
+const extractHashtag = (str: string) => {
+  const hashtagRegex = /#\w+(-\w+)*/;
+  const match = str.match(hashtagRegex);
+  return match ? match[0] : '';
+}
+
+export function parseDocument($: cheerio.Root, frontmatter: any, isPrivateDoc: boolean): ParsedDocument {
   const $pageTitle = $("h1").first();
   const pageTitle = frontmatter.title ?? $pageTitle.text();
-  const description = frontmatter.description ?? ($("p").first().text() || "");
+  let firstProbablePara = ''
+  $("p").each((index, element) => {
+    if (index === 0 || !startsWithLetter($(element).text()) || firstProbablePara) return
+    firstProbablePara = isPrivateDoc ? $(element).text()?.slice(0, 200) : $(element).text()
+  })
+  if (!(firstProbablePara && firstProbablePara.length > frontmatter.description.length)) {
+    firstProbablePara = frontmatter.description
+  }
+  const description = firstProbablePara;
   const keywords = $("meta[name='keywords']").attr("content") || "";
 
   const sections: ParsedDocumentSection[] = [];
@@ -37,11 +57,13 @@ export function parseDocument($: cheerio.Root, frontmatter: any): ParsedDocument
       // Remove elements that are marked as aria-hidden.
       // This is mainly done to remove anchors like this:
       // <a aria-hidden="true" tabindex="-1" class="hash-link" href="#first-subheader" title="Direct link to heading">#</a>
-      const title = $h.text().trim();
+      let title = $h.text().trim();
       // replace all '`' with '' to avoid breaking the search index
-      const sanitizedTitle = title.replace(/`|\?/g, '');
-      const hash = `#${sanitizedTitle.toLocaleLowerCase().split(' ').join('-')}`;
-
+      const sanitizedTitle = title.replace(/[,?\.!:;\/\\'"\[\]\{\}\(\)&@#$%^*|<>~`]/g, '');
+      let hash = extractHashtag(title)
+      if (!hash) {
+        hash = `#${sanitizedTitle.toLocaleLowerCase().split(' ').join('-')}`;
+      }
       // Find all content between h1 and h2/h3,
       // which is considered as the content section of page title.
       let $sectionElements = $([]);
@@ -81,11 +103,14 @@ export function parseDocument($: cheerio.Root, frontmatter: any): ParsedDocument
         $sectionElements = $h.nextUntil(HEADINGS);
       }
       const content = getCondensedText($sectionElements.get(), $);
+      // for highlighting the text
+      const query = `?highlight=${title.length > content.length ? title : content.substring(0, MAX_CONTENT_LEN)}`;
 
       sections.push({
         title,
         hash,
         content,
+        query
       });
     });
   })
