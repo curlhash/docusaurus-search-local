@@ -14,10 +14,16 @@
 .searchResultItem {
   padding: 1rem 0px;
   border-bottom: 1px solid rgb(223, 227, 232);
+  color: var(--search-local-text-color) !important;
 }
 
 .searchResultItem > h2 {
   margin-bottom: 0;
+
+}
+
+.searchResultItem > h4 > a{
+  color: var(--search-local-text-color) !important;
 }
 
 .searchResultItemPath {

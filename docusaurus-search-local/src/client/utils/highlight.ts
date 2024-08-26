@@ -24,8 +24,7 @@ export function highlight(
       }
       html.push(
         `<span style="font-weight: 900 !important;
-  color: var(--search-local-hit-highlight-color) !important;
-  text-decoration: underline !important;">${escapeHtml(content.substr(index, token.length))}</span>`
+  color: var(--search-local-hit-highlight-color) !important;">${escapeHtml(content.substr(index, token.length))}</span>`
       );
       const end = index + token.length;
       if (end < content.length) {
@@ -38,8 +37,7 @@ export function highlight(
   if (html.length === 0) {
     return forceMatched
       ? `<span class=style="font-weight: 900 !important;
-  color: var(--search-local-hit-highlight-color) !important;
-  text-decoration: underline !important;">${escapeHtml(content)}</span>`
+  color: var(--search-local-hit-highlight-color) !important;">${escapeHtml(content)}</span>`
       : escapeHtml(content);
   }
 
