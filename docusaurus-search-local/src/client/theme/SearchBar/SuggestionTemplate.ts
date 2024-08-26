@@ -83,10 +83,12 @@ export function SuggestionTemplate({
   }
 
   const action = `<span class="${styles.hitAction}">${iconAction}</span>`;
+  // removed all "" from title
+  const tooltipTitle = document.t.replace(/"/g, " ");
   return [
     ...treeWrapper,
     icon,
-    `<span title="${document.t}" class="${styles.hitWrapper}">`,
+    `<span title="${tooltipTitle}" class="${styles.hitWrapper}">`,
     ...wrapped,
     "</span>",
     action,
